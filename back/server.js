@@ -1,49 +1,41 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import express from "express";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const app = express();
+const PORT = 5000;
+app.use(cors());
+
+// __dirname for ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
-app.use(cors());
-
-// Serve static assets from backend
+// Serve static files
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// Navbar data
-const navbarData = {
-  logo: 'http://localhost:5000/assets/Uc.png', 
-  links: [
-    { name: 'Native', path: '/native' }
-  ],
-  urblocItems: [
-    { name: 'Profile', path: '/profile' },
-    { name: 'Cart', path: '/cart' },
-    { name: 'Orders', path: '/orders' }
+// API data
+const apiData = {
+  logo: "/assets/Uc.png",
+  services: [
+    { name: "Home Cleaning" },
+    { name: "Plumbing" },
+    { name: "Electrician" },
+    { name: "AC Repair" },
+    { name: "Carpenter" },
+    { name: "Pest Control" }
   ]
 };
 
-// Trending searches
-const trendingSearches = [
-  "Professional cleaning",
-  "Electricians",
-  "Salon",
-  "Plumbers",
-  "Carpenters",
-  "Washing machine repair",
-  "RO repair",
-  "AC repair",
-  "Home painting",
-  "Furniture assembly"
-];
+// Endpoints
+app.get("/api/logo", (req, res) => res.json({ logo: apiData.logo }));
 
-// Navbar endpoint
-app.get('/api/navbar', (req, res) => res.json(navbarData));
+app.get("/api/services", (req, res) => {
+  const query = req.query.query?.toLowerCase() || "";
+  const filtered = apiData.services.filter(s =>
+    s.name.toLowerCase().includes(query)
+  );
+  res.json(filtered);
+});
 
-// Search endpoint
-app.get('/api/search', (req, res) => res.json(trendingSearches));
-
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Backend server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
