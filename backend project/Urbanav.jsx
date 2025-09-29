@@ -11,6 +11,7 @@ import "./Urbancom.css";
 
 function Urbanav() {
   const [logo, setLogo] = useState("");
+  const [logo1,setLogo1]=useState("");
   const [searchValue, setSearchValue] = useState("");
   const [showLocationPopup, setShowLocationPopup] = useState(false);
   const [placeholder, setPlaceholder] = useState("Search for ");
@@ -61,7 +62,13 @@ function Urbanav() {
       .then((data) => setLogo(`http://localhost:5000${data.logo}`))
       .catch((err) => console.log(err));
   }, []);
-
+  //Fetch logo for bottom menu
+  useEffect(()=>{
+    fetch("http://localhost:5000/api/logo1")
+    .then((res)=>res.json())
+    .then((data)=>setLogo1(`http://localhost:5000${data.logo1}`))
+    .catch((err)=>console.log(err));
+  },[]);
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -213,17 +220,24 @@ function Urbanav() {
 
       {/* Bottom Menu for Tablet/Mobile */}
       <div className="d-lg-none bottom-menu">
-        {["Location", "Bookings", "Cart", "Profile"].map((item, idx) => (
+        {[
+          { type: "logo1", src: logo1, label: "" },
+          { type: "icon", icon: <LuNotepadText size={22} />, label: "Bookings" },
+          { type: "icon", icon: <CiShoppingCart size={22} />, label: "Help" },
+          { type: "text", label: "Native" },
+          { type: "icon", icon: <CgProfile size={22} />, label: "Account" },
+        ].map((item, idx) => (
           <button
             key={idx}
             className={activeTab === idx ? "active" : ""}
             onClick={() => setActiveTab(idx)}
           >
-            {idx === 0 && <CiLocationOn size={22} />}
-            {idx === 1 && <LuNotepadText size={22} />}
-            {idx === 2 && <CiShoppingCart size={22} />}
-            {idx === 3 && <CgProfile size={22} />}
-            <span>{item}</span>
+            {item.type === "logo1" && item.src && (
+              <img src={item.src} alt="Logo1" style={{ width: 24, height: 24 }} />
+            )}
+            {item.type === "icon" && item.icon}
+            {item.type === "text" && <span>{item.label}</span>}
+            {item.type !== "logo1" && <span>{item.label}</span>}
           </button>
         ))}
       </div>
